@@ -13,6 +13,12 @@
   "author": "star",
   "license": "ISC",
   "dependencies": {
-    "koa": "^2.11.0"
+    "jimp": "^0.9.3",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-jwt": "^3.6.0",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.3"
   }
 }
