@@ -8,13 +8,20 @@ const router = new Router();
 const parentRouter = new Router();
 const bodyParser = require('koa-bodyparser');
 const admin  = require('./admin')();
-const {getAllUser,createUser} = require('./db/index');
+const {getAllUser,createUser,mongoCreateUser,mongoFindUser} = require('./db/index');
 const jsonMIME = 'application/json';
 const jimp = require('jimp');
+const path = require('path');
+const session = require('koa-session');
+const CONFIG = require('./config/session/index');
+const {client} = require('./db/model/redis');
+console.log(path.resolve('/fcc/foo','/fbb'));
+console.log(path.resolve(__dirname));
 // router.post('/login',async (ctx,next) =>{
   
 // });
 app.use(bodyParser());
+app.keys = ['star'];
 
 router.get('/starkoa/guestInfo',async (ctx,next) => {
   console.log("hit all starkoa 1");
@@ -44,6 +51,9 @@ router.get('/starkoa/guestInfo',async (ctx,next) => {
       .write("static/Capture-test2.PNG");
   })
   console.log(response);
+}).get('/starkoa/getRedisSess',async (ctx,next) => {
+  console.log("getRedisSess");
+  const sess = await client.hmset('star','star1','star2');
 }).post('/starkoa/createUser',async (ctx,next) => {
   const user = ctx.request.body;
   await console.log('await test');
@@ -51,6 +61,23 @@ router.get('/starkoa/guestInfo',async (ctx,next) => {
   ctx.type = jsonMIME;
   ctx.body = {
     status:0
+  }
+}).post('/starkoa/mongodb/createUser',async (ctx,next) => {
+  const user = ctx.request.body;
+  await console.log('await test');
+  await mongoCreateUser(user);
+  ctx.type = jsonMIME;
+  ctx.body = {
+    status:0
+  }
+}).post('/starkoa/mongodb/findUser',async (ctx,next) => {
+  const user = ctx.request.body;
+  const userRes = await mongoFindUser(user);
+  await console.log(userRes);
+  ctx.type = jsonMIME;
+  ctx.body = {
+    status:0,
+    userRes
   }
 }).get('/starkoa/getAllUser',async (ctx,next) => {
     const user = await getAllUser();
@@ -86,10 +113,14 @@ parentRouter.post('/star/login',async (ctx,next) => {
 }).use('/star/user',jwt,router.routes(),router.allowedMethods());
 
 app.use(parentRouter.routes());
-
+app.use(session(CONFIG,app));
 app.use(async (ctx,next) => {
   // console.log(1);
   // await next();
+  if(ctx.path === '/favicon.ico') return;
+  let n = ctx.session.views || 0;
+  ctx.session.views = ++n;
+  ctx.body = n + 'Views';
   console.log("end 1");
 })
 
@@ -97,3 +128,7 @@ app.use(async (ctx,next) => {
 app.listen(3000,() => {
   console.log("server is running at http://localhost:3000")
 });
+
+module.exports = {
+  app
+}
