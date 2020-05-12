@@ -20,7 +20,7 @@ console.log(path.resolve(__dirname));
 // router.post('/login',async (ctx,next) =>{
   
 // });
-app.use(bodyParser());
+app.use(bodyParser());  
 app.keys = ['star'];
 
 router.get('/starkoa/guestInfo',async (ctx,next) => {
@@ -113,7 +113,7 @@ parentRouter.post('/star/login',async (ctx,next) => {
 }).use('/star/user',jwt,router.routes(),router.allowedMethods());
 
 app.use(parentRouter.routes());
-app.use(session(CONFIG,app));
+app.use(session(CONFIG,app)); 
 app.use(async (ctx,next) => {
   // console.log(1);
   // await next();
